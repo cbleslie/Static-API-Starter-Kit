@@ -1,0 +1,17 @@
+{
+  "name": "staticapi",
+  "version": "1.0.0",
+  "description": "Generate a static JSON API.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-markdown-to-json": "^1.0.3",
+    "marked": "^0.3.6"
+  }
+}
