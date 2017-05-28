@@ -12,27 +12,6 @@ const marked = require('marked');
 const markdownToJSON = require('gulp-markdown-to-json');
 
 ////////////////////////////////////////////////////////////////////////////////
-// Tooling
-////////////////////////////////////////////////////////////////////////////////
-
-// Create a single JSON file from a single markdown file. Preserving the
-// directory structure.
-const createSingleResponse = (src, dist) => {
-  gulp.src(src)  // Get pattern of file(s)
-  .pipe(markdownToJSON(marked)) // Convert to JSON
-  .pipe(gulp.dest(dist)); // Move to destination folder
-};
-
-// Create a single JSON file from many markdown files in a given soruce
-// directory. Preserving the directory structure in the JSON itself.
-const createConsolatedResponse = (src, dist, filename) => {
-  gulp.src(src) // Get pattern of file(s)
-  .pipe(gutil.buffer()) //Collect all the files in a buffer
-  .pipe(markdownToJSON(marked, filename)) // Convert to JSON
-  .pipe(gulp.dest(dist)); // Move to destination folder
-};
-
-////////////////////////////////////////////////////////////////////////////////
 // Project Settings
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,17 +28,27 @@ marked.setOptions({
 });
 
 ////////////////////////////////////////////////////////////////////////////////
+// Tooling
+////////////////////////////////////////////////////////////////////////////////
+const createAPIResponse = src => (dist, filename) => {
+  gulp.src(src)
+  .pipe(filename ? gutil.buffer() : gutil.noop())
+  .pipe(markdownToJSON(marked, filename ? filename : false))
+  .pipe(gulp.dest(dist));
+};
+
+const createRootAPI = createAPIResponse(path.src + '**/*.md');
+
+
+////////////////////////////////////////////////////////////////////////////////
 // Building Tasks
 ////////////////////////////////////////////////////////////////////////////////
 
 // Markdown to API Tasks - You edit, and make new versions of these, as you see
 // fit
-gulp.task('api-path', () => {
-  createConsolatedResponse(path.src + '**/*.md', path.api, 'global.json');
-});
-
-gulp.task('api-individual', () => {
-  createSingleResponse(path.src + '**/*.md', path.api);
+gulp.task('api', () => {
+  createRootAPI(path.api, 'global.json');
+  createRootAPI(path.api);
 });
 
 // Image Tasks
@@ -81,8 +70,7 @@ gulp.task('clean', () => {
 // Build
 gulp.task('build', [
   'clean',
-  'api-path',
-  'api-individual',
+  'api',
   'copyImages'
 ]);
 
@@ -90,7 +78,6 @@ gulp.task('build', [
 gulp.task('watch', ['build'], () => {
   gulp.watch(path.src + '**/*.md', [
     'api-path',
-    'api-individual'
   ]);
   gulp.watch(path.src + '**/*.{jpg, png, gif, tif, svg}', [
     'copyImages'
