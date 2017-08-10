@@ -26,3 +26,6 @@ Only two meta tasks right now...
 
 ### Watch
 `gulp watch`
+
+### Page
+`gulp page --"name of page"`
